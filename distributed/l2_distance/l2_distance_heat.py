@@ -14,7 +14,7 @@ def l2_distance(X1, X2):
 
 def initialize(size, dims):
         np.random.seed(7777777)
-        return (np.random.random_sample((size, dims)), np.random.random_sample((size, dims)))
+        return (np.random.random((size, dims)), np.random.random((size, dims)))
         
 def run_l2_distance(size, dims):
         start = datetime.datetime.now()
