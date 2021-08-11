@@ -36,7 +36,7 @@ if __name__ == "__main__":
         "-u",
         "--use",
         default='numpy',
-        choices=['numpy', 'dask', 'ramba', 'torch', 'heat', 'nums',],
+        choices=['numpy', 'dask', 'ramba', 'torch', 'heat', 'nums', 'legate'],
         dest="use",
         help="use given numpy implementation",
     )
@@ -54,6 +54,8 @@ if __name__ == "__main__":
         from pairwise_distance.pairwise_distance_heat import run_pairwise_distance
     elif args.use == 'nums':
         from pairwise_distance.pairwise_distance_nums import run_pairwise_distance
+    elif args.use == 'legate':
+        from pairwise_distance.pairwise_distance_legate import run_pairwise_distance
 
     run_benchmark(
         run_pairwise_distance,

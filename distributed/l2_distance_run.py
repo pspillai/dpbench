@@ -36,7 +36,7 @@ if __name__ == "__main__":
         "-u",
         "--use",
         default='numpy',
-        choices=['numpy', 'dask', 'ramba', 'torch', 'heat', 'nums',],
+        choices=['numpy', 'dask', 'ramba', 'torch', 'heat', 'nums', 'legate'],
         dest="use",
         help="use given numpy implementation",
     )
@@ -54,6 +54,8 @@ if __name__ == "__main__":
         from l2_distance.l2_distance_heat import run_l2_distance
     elif args.use == 'nums':
         from l2_distance.l2_distance_nums import run_l2_distance
+    elif args.use == 'legate':
+        from l2_distance.l2_distance_legate import run_l2_distance
 
     run_benchmark(
         run_l2_distance,
