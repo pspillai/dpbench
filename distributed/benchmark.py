@@ -85,7 +85,7 @@ def run_benchmark(f, samples, name, nnodes, args):
                 str(ltime.tm_min),
                 str(ltime.tm_sec),
                 name,
-                nnodes,
+                str(nnodes),
                 str(samples),
                 str(mean),
                 str(variance),

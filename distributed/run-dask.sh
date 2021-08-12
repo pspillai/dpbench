@@ -1,6 +1,5 @@
 #!/bin/bash
 set -x
-
 APP="$*"
 
 echo "$NUM_NODES nodes from `hostname`"
@@ -11,14 +10,15 @@ nodes=$(scontrol show hostnames $NODE_LIST | grep -v $head) # Getting the node n
 export DASK_CFG=$(pwd)/dask.$$
 port=41041
 
-echo "STARTING DASK SCHEDULER at $head:$port"
+echo "STARTING DASK SCHEDULER at $head:$port $DASK_CFG"
 dask-scheduler --port $port --scheduler-file $DASK_CFG &
 sleep 10
 
+dawo=`which dask-worker`
 i=1
 for node in $head $nodes; do
   echo "STARTING DASK WORKER at node $node $DASK_CFG";
-  ssh -f $node dask-worker --scheduler-file $DASK_CFG --nprocs auto
+  ssh -f $node $dawo --scheduler-file=$DASK_CFG --nprocs=auto --nthreads=1
   sleep 10
   echo "$RUNNING on $i nodes"
   cmd="$APP --no-nodes=$i"

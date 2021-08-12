@@ -6,7 +6,11 @@ APP="$*"
 echo "$NUM_NODES nodes from `hostname`"
 worker_num=$NUM_NODES
 hostfile=$(pwd)/mpi.hf
-nodes=$(scontrol show hostnames $NODE_LIST > $hostfile)
+if command -v COMMAND &> /dev/null; then
+    scontrol show hostnames $NODE_LIST > $hostfile
+else
+    echo $NODE_LIST | sed -e "s/ \+/\n/g" > $hostfile
+fi
 
 for i in $(seq 1 $worker_num); do
     echo "$RUNNING on $i nodes"
