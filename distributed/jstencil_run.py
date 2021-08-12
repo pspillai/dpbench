@@ -63,6 +63,8 @@ if __name__ == "__main__":
         from jstencil.jstencil_cw4heat import run_jstencil
     elif args.use == 'nums':
         from jstencil.jstencil_nums import run_jstencil
+    elif args.use == 'legate':
+        from jstencil.jstencil_legate import run_jstencil
 
     run_benchmark(
         run_jstencil,

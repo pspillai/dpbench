@@ -45,9 +45,9 @@ def run(grid, I, N):  # noqa: E741
         average = center + north + east + west + south
         work = 0.2 * average
         # delta = np.sum(np.absolute(work - center))
-        np.sync()
+        #np.sync()
         center[:] = work
-        np.sync()
+        #np.sync()
     total = np.sum(center)
     return total / (N ** 2)
 
