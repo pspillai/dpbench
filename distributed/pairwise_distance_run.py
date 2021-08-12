@@ -1,12 +1,28 @@
 #!/usr/bin/env python
 
+# Copyright 2021 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 from __future__ import print_function
 
 import argparse
-from benchmark import run_benchmark
+from benchmark import run_benchmark, add_common_args
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    add_common_args(parser)
     parser.add_argument(
         "-r",
         "--rows",
@@ -24,22 +40,13 @@ if __name__ == "__main__":
         help="Cols of input matrices",
     )
     parser.add_argument(
-        "-b",
-        "--benchmark",
-        type=int,
-        default=1,
-        dest="benchmark",
-        help="number of times to benchmark this application (default 1 "
-        "- normal execution)",
+        "-t",
+        "--time",
+        dest="timing",
+        action="store_true",
+        help="perform timing",
     )
-    parser.add_argument(
-        "-u",
-        "--use",
-        default='numpy',
-        choices=['numpy', 'dask', 'ramba', 'torch', 'heat', 'nums', 'legate'],
-        dest="use",
-        help="use given numpy implementation",
-    )
+
     args = parser.parse_args()
 
     if args.use == 'numpy':
@@ -61,5 +68,6 @@ if __name__ == "__main__":
         run_pairwise_distance,
         args.benchmark,
         f"PAIRWISE_DISTANCE,{args.use}",
-        (args.R, args.C,)
+        args.no_nodes,
+        (args.R, args.C, args.timing)
     )
