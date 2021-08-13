@@ -19,7 +19,7 @@
 from __future__ import print_function
 
 import argparse
-from benchmark import run_benchmark
+from benchmark import run_benchmark, add_common_args
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -87,8 +87,7 @@ if __name__ == "__main__":
     
     run_benchmark(
         run_linear_regression,
-        args.benchmark,
+        args,
         f"LINREG({args.P}),{args.use}",
-        args.no_nodes,
         (args.N, args.F, args.P, args.I, args.S, args.B),
     )

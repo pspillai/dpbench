@@ -23,23 +23,29 @@ else
         fi
     fi
 fi
+
+if command -v COMMAND &> /dev/null; then
+    NODE_LIST=$(scontrol show hostnames ${NODE_LIST})
+fi
+
 _tmp=(${NODE_LIST})
 export NUM_NODES=${#_tmp[@]}
+export OMP_NUM_THREADS=$(cpuinfo -g|grep Processors|cut -d ' ' -f 4)
 
 dists=${DISTS-"heat dask numpy torch"}
 benchs=${BENCHS-"jstencil linreg nbody mandelbrot lbfgs"}
 
-bargs="-b 5"
+bargs="-b 2"
 for bench in $benchs; do
     # the benchmark configuration is hard-coded here as well
     if [[ "$bench" == "jstencil" ]]; then
-	app="python jstencil_run.py -n 6000 -i 3 $bargs"
+	app="python jstencil_run.py -n 40000 -i 30 -t $bargs"
     elif [[ "$bench" == "nbody" ]]; then
-	app="python nbody_run.py -n 200 -t 10 -d 0.1 $bargs"
+	app="python nbody_run.py -n 400 -t 10 -d 0.1 $bargs"
     elif [[ "$bench" == "linreg" ]]; then
-	app="python linreg_run.py -n 100 -i 1000 $bargs"
+	app="python linreg_run.py -n 10000 -f 128 -i 500 $bargs"
     elif [[ "$bench" == "mandelbrot" ]]; then
-	app="python mandelbrot_run.py -d 5000,5000 -i 200 $bargs"
+	app="python mandelbrot_run.py -d 1000,1000 -i 200 $bargs"
     elif [[ "$bench" == "lbfgs" ]]; then
 	app="python lbfgs_run.py $bargs"
     fi
@@ -57,16 +63,4 @@ for bench in $benchs; do
 	    ./run-${dist}.sh $app -u $dist
 	fi
     done
-done
-
-# now we run 
-for dist in $dists; do
-    $apps_now=${apps//_run.py/_run.py --u $dist/}
-    if "$dist" == "heat"; then
-	run-mpi.sh $apps_now
-    elif [[ "$dist" == "ramba" || "$dist" == "nums" ]]; then
-	run-ray.sh $apps_now -u $dist
-    else
-	run-${dist}.sh $apps_now -u $dist
-    fi
 done

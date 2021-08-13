@@ -21,15 +21,14 @@ from __future__ import print_function
 import datetime
 import math
 
-#import heat as np
-import heat.cw4heat as np
-np.init()
+import heat as np
+#import heat.cw4heat as np
+#np.init()
 
 
 def initialize(N, F, T):
     # We'll generate some random inputs here
     # since we don't need it to converge
-    np.random.seed(1)
     x = np.random.randn(N, F, dtype=T, split=0)
     y = np.random.random(N, dtype=T, split=0)
     print(x.shape, y.shape)

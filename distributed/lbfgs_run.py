@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import print_function
 
 import argparse
-from benchmark import run_benchmark
+from benchmark import run_benchmark, add_common_args
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("\n\n!!!!!!!!!!!!!!!!!!!\nNote: use lbfgs/gen_Xy_data.py to generate input data\n!!!!!!!!!!!!!!!!!!!\n")
@@ -50,8 +50,7 @@ if __name__ == "__main__":
     
     run_benchmark(
         run_lbfgs,
-        args.benchmark,
+        args,
         f"LBFGS,{args.use}",
-        args.no_nodes,
         (),
     )

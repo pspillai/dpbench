@@ -121,7 +121,7 @@ def nbody(mass, pos, vel, N, Nt, dt, G, softening):
         # get energy of system
         KE[i + 1], PE[i + 1] = getEnergy(pos, vel, mass, G)
 
-    return KE.persist().result(), PE.persist().result()
+    return KE.persist(), PE.persist()
 
 
 def initialize(N, tEnd, dt, nt):

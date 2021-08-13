@@ -72,8 +72,7 @@ if __name__ == "__main__":
 
     run_benchmark(
         run_mandelbrot,
-        args.benchmark,
+        args,
         "STENCIL",
-        args.no_nodes,
         (*args.region, *args.dim, args.itermax, args.horizon)
     )

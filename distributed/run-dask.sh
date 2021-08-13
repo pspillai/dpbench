@@ -5,7 +5,7 @@ APP="$*"
 echo "$NUM_NODES nodes from `hostname`"
 worker_num=$NUM_NODES
 head=$(hostname)
-nodes=$(scontrol show hostnames $NODE_LIST | grep -v $head) # Getting the node names exept head
+nodes=$(echo $NODE_LIST | sed -e "s/ \+/\n/g" | grep -v $head) # Getting the node names exept head
 
 export DASK_CFG=$(pwd)/dask.$$
 port=41041
@@ -18,7 +18,7 @@ dawo=`which dask-worker`
 i=1
 for node in $head $nodes; do
   echo "STARTING DASK WORKER at node $node $DASK_CFG";
-  ssh -f $node $dawo --scheduler-file=$DASK_CFG --nprocs=auto --nthreads=1
+  ssh -f $node $dawo --scheduler-file=$DASK_CFG --nprocs=auto --local-directory=/tmp/$USER
   sleep 10
   echo "$RUNNING on $i nodes"
   cmd="$APP --no-nodes=$i"

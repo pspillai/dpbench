@@ -48,12 +48,22 @@ def add_common_args(parser):
         type=int,
         help="Number of nodes this is running on (used for reporting only)",
     )
+    parser.add_argument(
+        "--worker",
+        default=False,
+        action="store_true",
+        help="Is running process a worker process?",
+    )
 
 
 # A helper method for benchmarking applications
-def run_benchmark(f, samples, name, nnodes, args):
+def run_benchmark(f, bargs, name, args):
+    samples = bargs.benchmark
+    nnodes = bargs.no_nodes
     if samples > 1:
         results = [f(*args) for s in range(samples)]
+        if bargs.worker:
+            return
         # Remove the largest and the smallest ones
         if samples >= 3:
             results.remove(max(results))

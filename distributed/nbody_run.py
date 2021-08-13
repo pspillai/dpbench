@@ -19,7 +19,7 @@
 from __future__ import print_function
 
 import argparse
-from benchmark import run_benchmark
+from benchmark import run_benchmark, add_common_args
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -70,8 +70,7 @@ if __name__ == "__main__":
 
     run_benchmark(
         run_nbody,
-        args.benchmark,
+        args,
         f"NBODY,{args.use}",
-        args.no_nodes,
         (args.N, args.time, args.delta_time, args.softening)
     )
