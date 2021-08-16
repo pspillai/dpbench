@@ -173,8 +173,7 @@ def logistic(app, X, y, max_iter, m):
 
 
 def sample_set(app):
-    shape = (5000, 100)
-    block_shape = (1000, 10)
+    shape = (1000000, 1000)
     rs = np.random.RandomState(1337)
     X1 = rs.normal(loc=5.0, size=shape)
     y1 = np.zeros(shape=(shape[0],), dtype=float)
@@ -183,18 +182,6 @@ def sample_set(app):
     X = np.concatenate([X1, X2], axis=0)
     y = np.concatenate([y1, y2], axis=0)
     return X, y
-    #block_shape = (100, 10)
-    #rs = app.random.RandomState(1337)
-    #X1 = rs.normal(loc=5.0, size=shape, 
-    #               #block_shape=block_shape
-    #              )
-    #X2 = rs.normal(loc=10.0, size=shape,
-    #               #block_shape=block_shape
-    #              )
-    #X = np.loadtxt("X.csv", delimiter=',')
-    #y = np.loadtxt("y.csv", delimiter=',')
-    #print("sample", X.shape, y.shape)
-    #return X, y
 
 
 def run_lbfgs():

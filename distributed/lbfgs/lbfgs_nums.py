@@ -180,8 +180,8 @@ def logistic(app, X, y, max_iter, m):
 
 
 def sample_set(app: ArrayApplication):
-    shape = (5000, 100)
-    block_shape = (1000, 10)
+    shape = (1000000, 1000)
+    block_shape = (100000, 100)
     rs = app.random_state(1337)
     X1 = rs.normal(loc=5.0, shape=shape, block_shape=block_shape)
     y1 = app.zeros(shape=(shape[0],), block_shape=(block_shape[0],), dtype=int)

@@ -174,8 +174,7 @@ def logistic(app, X, y, max_iter, m, nt):
 
 
 def sample_set(app, nt):
-    shape = (5000, 100)
-    block_shape = (1000, 10)
+    shape = (1000000, 1000)
     rs = np.random.RandomState(1337)
     X1 = rs.normal(loc=5.0, size=shape, chunks=(shape[0]//nt, shape[1]))
     y1 = np.zeros(shape=(shape[0],), dtype=float, chunks=(shape[0]//nt,))
@@ -184,23 +183,12 @@ def sample_set(app, nt):
     X = np.concatenate([X1, X2], axis=0).persist()
     y = np.concatenate([y1, y2], axis=0).persist()
     return X, y
-    #shape = (50000, 1000)
-    #block_shape = (100, 10)
-    #rs = app.random.RandomState(1337)
-    #X1 = rs.normal(loc=5.0, size=shape, 
-    #               #block_shape=block_shape
-    #              )
-    #X2 = rs.normal(loc=10.0, size=shape,
-    #               #block_shape=block_shape
-    #              )
-    #X = numpy.loadtxt("X.csv", delimiter=',')
-    #y = numpy.loadtxt("y.csv", delimiter=',')
-    #return np.from_array(X, chunks=(X.shape[0]//nt, X.shape[1])).persist(), np.from_array(y, chunks=(y.shape[0]//nt,)).persist()
 
 
 def run_lbfgs():
     client = Client(scheduler_file=getenv("DASK_CFG"))
     nt = numpy.sum([x for x in client.nthreads().values()])
+    print(f"nt: {nt}")
     start_time = time.time()
     X, y = sample_set(np, nt)
     print("data loaded.")
