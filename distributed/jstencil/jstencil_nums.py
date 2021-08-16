@@ -36,16 +36,16 @@ def initialize(N):
 
 def run(grid, I, N):  # noqa: E741
     print("Running Jacobi stencil...")
-    center = grid[1:-1, 1:-1]
-    north = grid[0:-2, 1:-1]
-    east = grid[1:-1, 2:]
-    west = grid[1:-1, 0:-2]
-    south = grid[2:, 1:-1]
     for i in range(I):
+        center = grid[1:-1, 1:-1]
+        north = grid[0:-2, 1:-1]
+        east = grid[1:-1, 2:]
+        west = grid[1:-1, 0:-2]
+        south = grid[2:, 1:-1]
         average = center + north + east + west + south
         work = 0.2 * average
+        grid[1:-1, 1:-1] = work
         # delta = np.sum(np.absolute(work - center))
-        center[:] = work
     total = np.sum(center)
     return total / (N ** 2)
 

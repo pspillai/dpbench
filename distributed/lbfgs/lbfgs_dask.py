@@ -47,8 +47,8 @@ def bt_linesearch(app,
         return objective(app, y, forward(app, X, theta_prime)).persist()
 
     alpha = init_alpha
-    f_val = f(theta)
-    f_next = f(theta + alpha * p)
+    f_val = f(theta).persist()
+    f_next = f(theta + alpha * p).persist()
     while app.isnan(f_next) or f_next > f_val + c * alpha * grad.T @ p:
         alpha *= rho
         if alpha < min_alpha:
