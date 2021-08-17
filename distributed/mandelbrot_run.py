@@ -73,6 +73,6 @@ if __name__ == "__main__":
     run_benchmark(
         run_mandelbrot,
         args,
-        "STENCIL",
+        f"MANDELBROT,{args.use}",
         (*args.region, *args.dim, args.itermax, args.horizon)
     )
