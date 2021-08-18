@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import time
+import datetime
 from typing import List, Union
 
 import heat as np
@@ -187,7 +187,7 @@ def sample_set(app):
 
 
 def run_lbfgs():
-    start_time = time.time()
+    start = datetime.datetime.now()
     X, y = sample_set(np)
     
     y_pred_proba = logistic(np, X, y, max_iter=10, m=3)
@@ -195,7 +195,8 @@ def run_lbfgs():
     y_pred = (y_pred_proba > 0.5).astype(np.float32)
     print("prediction submitted.")
     error = (np.sum(np.abs(y - y_pred)) / X.shape[0]).astype(np.float32)
-    total_time = time.time() - start_time
+    delta = datetime.datetime.now() - start
+    total_time = delta.total_seconds() * 1000.0
 
     print("opt", "lbfgs")
     print("total time", total_time)

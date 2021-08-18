@@ -59,6 +59,8 @@ if __name__ == "__main__":
         from jstencil.jstencil_torch import run_jstencil
     elif args.use == 'heat':
         from jstencil.jstencil_heat import run_jstencil
+    elif args.use == 'cw4heat':
+        from jstencil.jstencil_cw4heat import run_jstencil
     elif args.use == 'nums':
         from jstencil.jstencil_nums import run_jstencil
 

@@ -21,44 +21,40 @@ from __future__ import print_function
 import datetime
 import math
 
-from os import getenv
-import nums.numpy as np
-import ray
+import heat.cw4heat as np
+np.init()
 
 
 def initialize(N):
     print("Initializing stencil grid...")
-    grid = np.zeros((N + 2, N + 2))
-    grid[:, 0] = np.array([-273.15])
-    grid[:, -1] = np.array([-273.15])
-    grid[-1, :] = np.array([-273.15])
-    grid[0, :] = np.array([40.0])
+    grid = np.zeros((N + 2, N + 2), split=0)
+    grid[:, 0] = -273.15
+    grid[:, -1] = -273.15
+    grid[-1, :] = -273.15
+    grid[0, :] = 40.0
     return grid
 
 
 def run(grid, I, N):  # noqa: E741
     print("Running Jacobi stencil...")
     for i in range(I):
-        center = grid[1:-1, 1:-1]
-        north = grid[0:-2, 1:-1]
-        east = grid[1:-1, 2:]
-        west = grid[1:-1, 0:-2]
-        south = grid[2:, 1:-1]
+        center = grid[1:-1, 1:-1].balance()
+        north = grid[0:-2, 1:-1].balance()
+        east = grid[1:-1, 2:].balance()
+        west = grid[1:-1, 0:-2].balance()
+        south = grid[2:, 1:-1].balance()
         average = center + north + east + west + south
         work = 0.2 * average
-        grid[1:-1, 1:-1] = work
         # delta = np.sum(np.absolute(work - center))
+        grid[1:-1, 1:-1] = work
     total = np.sum(center)
     return total / (N ** 2)
 
 
 def run_jstencil(N, I, timing):  # noqa: E741
-    if not ray.is_initialized():
-        #settings.cluster_shape = (1, 1)
-        ray.init(address='auto', _redis_password=getenv("REDIS_PASSWORD"))
     start = datetime.datetime.now()
     grid = initialize(N)
-    average = run(grid, I, N).get()
+    average = run(grid, I, N)
     # This will sync the timing because we will need to wait for the result
     assert not math.isnan(average)
     stop = datetime.datetime.now()

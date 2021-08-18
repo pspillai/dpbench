@@ -45,6 +45,8 @@ if __name__ == "__main__":
         from lbfgs.lbfgs_torch import run_lbfgs
     elif args.use == 'heat':
         from lbfgs.lbfgs_heat import run_lbfgs
+    elif args.use == 'cw4heat':
+        from lbfgs.lbfgs_cw4heat import run_lbfgs
     elif args.use == 'nums':
         from lbfgs.lbfgs_nums import run_lbfgs
     

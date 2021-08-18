@@ -24,24 +24,25 @@ else
     fi
 fi
 
-if command -v COMMAND &> /dev/null; then
-    NODE_LIST=$(scontrol show hostnames ${NODE_LIST})
+if command -v scontrol &> /dev/null; then
+    NODE_LIST=$(scontrol show hostnames "${NODE_LIST}")
 fi
 
-_tmp=(${NODE_LIST})
-export NUM_NODES=${#_tmp[@]}
+tmp=($NODE_LIST)
+export NUM_NODES=${#tmp[@]}
+
 export OMP_NUM_THREADS=$(cpuinfo -g|grep Processors|cut -d ' ' -f 4)
 
-dists=${DISTS-"heat dask numpy torch"}
+dists=${DISTS-"numpy torch heat dask"}
 benchs=${BENCHS-"jstencil linreg nbody mandelbrot lbfgs"}
 
-bargs="-b 2"
+bargs="-b 5"
 for bench in $benchs; do
     # the benchmark configuration is hard-coded here as well
     if [[ "$bench" == "jstencil" ]]; then
 	app="python jstencil_run.py -n 40000 -i 30 -t $bargs"
     elif [[ "$bench" == "nbody" ]]; then
-	app="python nbody_run.py -n 400 -t 10 -d 0.1 $bargs"
+	app="python nbody_run.py -n 4000 -t 10 -d 0.1 $bargs"
     elif [[ "$bench" == "linreg" ]]; then
 	app="python linreg_run.py -n 10000 -f 128 -i 500 $bargs"
     elif [[ "$bench" == "mandelbrot" ]]; then
@@ -53,7 +54,7 @@ for bench in $benchs; do
     # the run-scripts start and tear-down dask/ray cluster each time to make sure
     # there are no left-overs, like in the in-memroy object store or whatever.
     for dist in $dists; do
-	if [[ "$dist" == "heat" ]]; then
+	if [[ "$dist" == *"heat" ]]; then
 	    ./run-mpi.sh $app -u $dist
 	elif [[ "$dist" == "ramba" || "$dist" == "nums" ]]; then
 	    ./run-ray.sh $app -u $dist

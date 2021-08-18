@@ -65,6 +65,8 @@ if __name__ == "__main__":
         from nbody.nbody_torch import run_nbody
     elif args.use == 'heat':
         from nbody.nbody_heat import run_nbody
+    elif args.use == 'cw4heat':
+        from nbody.nbody_cw4heat import run_nbody
     elif args.use == 'nums':
         from nbody.nbody_nums import run_nbody
 

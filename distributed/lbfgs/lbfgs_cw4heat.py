@@ -16,8 +16,8 @@
 import time
 from typing import List, Union
 
-import numpy as np
-
+import heat.cw4heat as np
+np.init()
 
 def forward(app, X, theta):
     #print("forward:", X.shape, theta.shape)
@@ -163,29 +163,30 @@ class LBFGS(object):
 
 
 def logistic(app, X, y, max_iter, m):
-    Xc = app.concatenate([X, app.ones((X.shape[0], 1), dtype=X.dtype)],
+    Xc = app.concatenate([X, app.ones((X.shape[0], 1), dtype=X.dtype, split=0)],
                          axis=1,
     )
-    theta = app.zeros((Xc.shape[1],), dtype=Xc.dtype)
+    theta = app.zeros((Xc.shape[1],), dtype=Xc.dtype, split=0)
     lbfgs_optimizer = LBFGS(app, m=m, max_iter=max_iter, dtype=Xc.dtype)
     theta = lbfgs_optimizer.execute(Xc, y, theta)
     return forward(app, Xc, theta)
 
 
 def sample_set(app):
+    import numpy
     shape = (1000000, 1000)
-    rs = np.random.RandomState(1337)
-    X1 = rs.normal(loc=5.0, size=shape)
-    y1 = np.zeros(shape=(shape[0],), dtype=float)
-    X2 = rs.normal(loc=10.0, size=shape)
-    y2 = np.ones(shape=(shape[0],), dtype=float)
+    numpy.random.seed(1337)
+    X1 = np.array(numpy.random.normal(5.0, 1.0, size=shape))
+    y1 = np.zeros((shape[0],), dtype=np.float32)
+    X2 = np.array(numpy.random.normal(10.0, 1.0, size=shape))
+    y2 = np.ones((shape[0],), dtype=np.float32)
     X = np.concatenate([X1, X2], axis=0)
     y = np.concatenate([y1, y2], axis=0)
     return X, y
 
 
 def run_lbfgs():
-    start = datetime.datetime.now()
+    start_time = time.time()
     X, y = sample_set(np)
     
     y_pred_proba = logistic(np, X, y, max_iter=10, m=3)
@@ -193,8 +194,7 @@ def run_lbfgs():
     y_pred = (y_pred_proba > 0.5).astype(np.float32)
     print("prediction submitted.")
     error = (np.sum(np.abs(y - y_pred)) / X.shape[0]).astype(np.float32)
-    delta = datetime.datetime.now() - start
-    total_time = delta.total_seconds() * 1000.0
+    total_time = time.time() - start_time
 
     print("opt", "lbfgs")
     print("total time", total_time)

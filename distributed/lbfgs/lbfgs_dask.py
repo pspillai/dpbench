@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import time
+import datetime
 from typing import List, Union
 
 import dask.array as np
@@ -189,7 +189,7 @@ def run_lbfgs():
     client = Client(scheduler_file=getenv("DASK_CFG"))
     nt = numpy.sum([x for x in client.nthreads().values()])
     print(f"nt: {nt}")
-    start_time = time.time()
+    start = datetime.datetime.now()
     X, y = sample_set(np, nt)
     print("data loaded.")
     y_pred_proba = logistic(np, X, y, 10, 3, nt)
@@ -197,7 +197,8 @@ def run_lbfgs():
     y_pred = (y_pred_proba > 0.5).astype(numpy.float32)
     print("prediction submitted.")
     error = (np.sum(np.absolute(y - y_pred)) / X.shape[0]).astype(numpy.float32).compute()
-    total_time = time.time() - start_time
+    delta = datetime.datetime.now() - start
+    total_time = delta.total_seconds() * 1000.0
 
     print("opt", "lbfgs")
     print("total time", total_time)

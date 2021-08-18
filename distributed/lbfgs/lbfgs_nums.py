@@ -13,12 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import time
+import datetime
 from typing import List, Union
 
 import numpy as np
 import ray
 
+from os import getenv
 from nums.core import settings
 from nums.numpy import isnan
 from nums.core.array.application import ArrayApplication
@@ -200,13 +201,13 @@ def load_set(app: ArrayApplication, read_func, dataset):
 
 
 def run_lbfgs():
-    #if not ray.is_initialized():
+    if not ray.is_initialized():
         #settings.cluster_shape = (1, 1)
-    #    ray.init(address='auto', _redis_password='')  #5241590000000000')
+        ray.init(address='auto', _redis_password=getenv("REDIS_PASSWORD"))
     app: ArrayApplication = instance()
     time.sleep(0.1)
     
-    start_time = time.time()
+    start = datetime.datetime.now()
     X, y = sample_set(app)
     
     y_pred_proba = logistic(app, X, y, max_iter=10, m=3)
@@ -214,7 +215,8 @@ def run_lbfgs():
     y_pred = (y_pred_proba > 0.5).astype(np.float32)
     print("prediction submitted.")
     error = (app.sum(app.abs(y - y_pred)) / X.shape[0]).astype(np.float32).get()
-    total_time = time.time() - start_time
+    delta = datetime.datetime.now() - start
+    total_time = delta.total_seconds() * 1000.0
 
     print("opt", "lbfgs")
     print("total time", total_time)

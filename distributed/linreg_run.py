@@ -82,6 +82,8 @@ if __name__ == "__main__":
         from linreg.linreg_torch import run_linear_regression
     elif args.use == 'heat':
         from linreg.linreg_heat import run_linear_regression
+    elif args.use == 'cw4heat':
+        from linreg.linreg_cw4heat import run_linear_regression
     elif args.use == 'nums':
         from linreg.linreg_nums import run_linear_regression
     

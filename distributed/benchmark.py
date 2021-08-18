@@ -38,7 +38,7 @@ def add_common_args(parser):
         "-u",
         "--use",
         default='numpy',
-        choices=['numpy', 'dask', 'ramba', 'torch', 'heat', 'nums',],
+        choices=['numpy', 'dask', 'ramba', 'torch', 'heat', 'cw4heat', 'nums',],
         dest="use",
         help="use given numpy implementation",
     )
