@@ -80,4 +80,5 @@ def run_linear_regression(N, F, T, I, S, B):  # noqa: E741
     delta = stop - start
     total = delta.total_seconds() * 1000.0
     print("Elapsed Time: " + str(total) + " ms")
+    np.reset()
     return total

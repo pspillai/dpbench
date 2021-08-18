@@ -63,4 +63,5 @@ def run_jstencil(N, I, timing):  # noqa: E741
     total = delta.total_seconds() * 1000.0
     if timing:
         print("Elapsed Time: " + str(total) + " ms")
+    np.reset()
     return total

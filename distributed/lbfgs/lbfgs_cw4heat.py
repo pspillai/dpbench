@@ -201,4 +201,5 @@ def run_lbfgs():
     print("error (1-accuracy)", error)
     # print("norm", model.grad_norm_sq(X, y).get())
     # print("objective", model.objective(X, y).get())
+    np.reset()
     return total_time

@@ -139,4 +139,5 @@ def run_nbody(N, tEnd, dt, softening):
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
     print(f"Elapsed Time: {total} ms")
+    np.reset()
     return total
