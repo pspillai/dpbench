@@ -59,6 +59,8 @@ if __name__ == "__main__":
         from pairwise_distance.pairwise_distance_torch import run_pairwise_distance
     elif args.use == 'heat':
         from pairwise_distance.pairwise_distance_heat import run_pairwise_distance
+    elif args.use == 'cw4heat':
+        from pairwise_distance.pairwise_distance_cw4heat import run_pairwise_distance
     elif args.use == 'nums':
         from pairwise_distance.pairwise_distance_nums import run_pairwise_distance
     elif args.use == 'legate':
