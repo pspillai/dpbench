@@ -16,12 +16,12 @@
 import datetime
 import nums.numpy as np
 
-def pairwise_distance( X1, X2):
+def pairwise_distance(X1, X2):
         # Computing the first two terms (X1^2 and X2^2) of the Euclidean distance equation
         x1 = np.sum(np.square(X1), axis=1)
         x2 = np.sum(np.square(X2), axis=1)
 
-        #Comnpute third term in equation
+        #Compute third term in equation
         D = -2 * np.dot(X1, X2.T)
         x3 = x1.reshape(x1.size,1)
         D = D + x3
@@ -42,5 +42,5 @@ def run_pairwise_distance(size, dims):
     total = delta.total_seconds() * 1000.0
     if timing:
             print(f"Elapsed Time: {total} ms")
-    print (D)
+    print(D[0])
     return total

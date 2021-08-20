@@ -28,7 +28,7 @@ if __name__ == "__main__":
         "--rows",
         type=int,
         dest='R',
-        default=2**15,
+        default=2**13,
         help="Rows of input matrices",
     )
     parser.add_argument(
@@ -66,8 +66,7 @@ if __name__ == "__main__":
 
     run_benchmark(
         run_pairwise_distance,
-        args.benchmark,
+        args,
         f"PAIRWISE_DISTANCE,{args.use}",
-        args.no_nodes,
         (args.R, args.C, args.timing)
     )
