@@ -32,7 +32,7 @@ def getAcc(pos, mass, G, softening):
 
     # matrix that stores 1/r^3 for all particle pairwise particle separations
     inv_r3 = (dx**2 + dy**2 + dz**2 + softening**2)
-    inv_r3[inv_r3 > 0] = inv_r3[inv_r3 > 0]**(-1.5)
+    inv_r3 = np.where(inv_r3 > 0, inv_r3**(-1.5), inv_r3)
 
     ax = G * (dx * inv_r3) @ mass
     ay = G * (dy * inv_r3) @ mass
@@ -72,7 +72,7 @@ def getEnergy(pos, vel, mass, G):
 
     # matrix that stores 1/r for all particle pairwise particle separations
     inv_r = np.sqrt(dx**2 + dy**2 + dz**2)
-    inv_r[inv_r > 0] = 1.0 / inv_r[inv_r > 0]
+    inv_r = np.where(inv_r > 0, 1.0 / inv_r, inv_r)
 
     # sum over upper triangle, to count each interaction only once
     # PE = G * np.sum(np.sum(np.triu(-(mass*mass.T)*inv_r,1)))

@@ -203,9 +203,8 @@ def load_set(app: ArrayApplication, read_func, dataset):
 def run_lbfgs():
     if not ray.is_initialized():
         #settings.cluster_shape = (1, 1)
-        ray.init(address='auto', _redis_password=getenv("REDIS_PASSWORD"))
+        ray.init(address=getenv("RAY_HEAD"), _redis_password=getenv("REDIS_PASSWORD"))
     app: ArrayApplication = instance()
-    time.sleep(0.1)
     
     start = datetime.datetime.now()
     X, y = sample_set(app)

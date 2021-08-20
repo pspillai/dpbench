@@ -10,7 +10,7 @@ worker_num=$(($NUM_NODES - 1)) #number of nodes other than the head node
 head=$(hostname)
 nodes=$(echo $NODE_LIST | sed -e "s/ \+/\n/g" | grep -v $head)
 ip=$(hostname --ip-address) # making redis-address
-port=6379
+port=6377
 export ip_head=$ip:$port
 echo "IP Head: $ip_head"
 
@@ -19,7 +19,9 @@ raycmd=`which ray`
 for node in $NODE_LIST; do
     ssh $node $raycmd stop --force
 done
-ray start --head --node-ip-address=$ip --port=6379 --redis-password=$REDIS_PASSWORD
+ray start --head --node-ip-address=$ip --port=$port --redis-password=$REDIS_PASSWORD
+
+export RAY_HEAD=$ip_head
 
 i=1
 for node in $head $nodes; do
