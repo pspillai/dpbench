@@ -56,7 +56,7 @@ def initialize(nopt):
     XH = 50.0
     TL = 1.0
     TH = 2.0
-    
+
     return (np.random.uniform(S0L, S0H, nopt),
             np.random.uniform(XL, XH, nopt),
             np.random.uniform(TL, TH, nopt))
@@ -66,7 +66,7 @@ def run_blackscholes(N, timing):
     nt = numpy.sum([x for x in client.nthreads().values()])
     RISK_FREE = 0.1
     VOLATILITY = 0.2
-    
+
     start = datetime.datetime.now()
     price, strike, t = initialize(N)
     black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)

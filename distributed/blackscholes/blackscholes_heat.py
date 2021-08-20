@@ -53,7 +53,7 @@ def initialize(nopt):
     XH = 50.0
     TL = 1.0
     TH = 2.0
-    
+
     return (np.random.random(nopt, split=0),
             np.random.random(nopt, split=0),
             np.random.random(nopt,split=0))
@@ -61,7 +61,7 @@ def initialize(nopt):
 def run_blackscholes(N, timing):
     RISK_FREE = 0.1
     VOLATILITY = 0.2
-    
+
     start = datetime.datetime.now()
     price, strike, t = initialize(N)
     put, call = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
