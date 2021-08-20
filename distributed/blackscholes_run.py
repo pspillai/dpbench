@@ -51,6 +51,8 @@ if __name__ == "__main__":
         from blackscholes.blackscholes_torch import run_blackscholes
     elif args.use == 'heat':
         from blackscholes.blackscholes_heat import run_blackscholes
+    elif args.use == 'cw4heat':
+        from blackscholes.blackscholes_cw4heat import run_blackscholes
     elif args.use == 'nums':
         from blackscholes.blackscholes_nums import run_blackscholes
     elif args.use == 'legate':
@@ -58,8 +60,7 @@ if __name__ == "__main__":
 
     run_benchmark(
         run_blackscholes,
-        args.benchmark,
+        args,
         f"BLACKSCHOLES,{args.use}",
-        args.no_nodes,
         (args.N, args.timing)
     )

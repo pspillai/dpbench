@@ -15,9 +15,12 @@
 
 import datetime
 import dask.array as np
+from dask.distributed import Client
+from os import getenv
+import numpy
 from scipy.special import erf
 
-def black_scholes ( nopt, price, strike, t, rate, vol, schd=None):
+def black_scholes(nopt, price, strike, t, rate, vol, schd=None):
 	mr = -rate
 	sig_sig_two = vol * vol * 2
 
@@ -59,6 +62,8 @@ def initialize(nopt):
         np.random.uniform(TL, TH, nopt))
         
 def run_blackscholes(N, timing):
+    client = Client(scheduler_file=getenv("DASK_CFG"))
+    nt = numpy.sum([x for x in client.nthreads().values()])
     RISK_FREE = 0.1
     VOLATILITY = 0.2
     

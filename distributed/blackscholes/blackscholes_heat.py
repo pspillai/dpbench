@@ -17,7 +17,7 @@ import datetime
 import heat as np
 from scipy.special import erf
 
-def black_scholes( nopt, price, strike, t, rate, vol, call, put ):
+def black_scholes(nopt, price, strike, t, rate, vol, call, put):
 	mr = -rate
 	sig_sig_two = vol * vol * 2
 
