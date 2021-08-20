@@ -50,7 +50,7 @@ for bench in $benchs; do
     elif [[ "$bench" == "lbfgs" ]]; then
 	app="python lbfgs_run.py $bargs"
     elif [[ "$bench" == "pairwise_distance" ]]; then
-	app="python pairwise_distance_run.py -r 65536 -t $bargs"
+	app="python pairwise_distance_run.py -r 81920 -t $bargs"
     fi
     # now we run this app for all the frameworks
     # the run-scripts start and tear-down dask/ray cluster each time to make sure
