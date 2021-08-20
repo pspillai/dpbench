@@ -18,7 +18,7 @@ from torch import erf
 import heat.cw4heat as np
 np.init()
 
-def black_scholes(nopt, price, strike, t, rate, vol, call, put):
+def black_scholes(nopt, price, strike, t, rate, vol):
     mr = -rate
     sig_sig_two = vol * vol * 2
 
@@ -41,9 +41,10 @@ def black_scholes(nopt, price, strike, t, rate, vol, call, put):
 
     Se = np.exp(b) * S
 
-    r =  P * d1 - Se * d2
-    call[:] = r  # temporary `r` is necessary for faster `put` computation
-    put[:] = r - P + Se
+    call = P * d1 - Se * d2
+    put = call - P + Se
+
+    return (put, call)
 
 def initialize(nopt):
     np.random.seed(7777777)
@@ -55,18 +56,16 @@ def initialize(nopt):
     TH = 2.0
 
     return (np.random.random(nopt, split=0),
-        np.random.random(nopt, split=0),
-        np.random.random(nopt,split=0),
-        np.zeros(nopt, dtype=np.float64, split=0),
-        -np.ones(nopt, dtype=np.float64, split=0))
+            np.random.random(nopt, split=0),
+            np.random.random(nopt,split=0))
 
 def run_blackscholes(N, timing):
     RISK_FREE = 0.1
     VOLATILITY = 0.2
 
     start = datetime.datetime.now()
-    price, strike, t, call, put = initialize(N)
-    black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY, call, put)
+    price, strike, t = initialize(N)
+    put, call = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY, call, put)
     _ = call.shape
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0

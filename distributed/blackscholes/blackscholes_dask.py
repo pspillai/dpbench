@@ -20,7 +20,7 @@ from os import getenv
 import numpy
 from scipy.special import erf
 
-def black_scholes(nopt, price, strike, t, rate, vol, schd=None):
+def black_scholes(nopt, price, strike, t, rate, vol):
     mr = -rate
     sig_sig_two = vol * vol * 2
 
@@ -46,7 +46,7 @@ def black_scholes(nopt, price, strike, t, rate, vol, schd=None):
     call = P * d1 - Se * d2
     put = call - P + Se
 
-    return np.compute( np.stack((put, call)), scheduler=schd )
+    return (put.persist(), call.persist())
 
 def initialize(nopt):
     np.random.seed(7777777)
@@ -58,8 +58,8 @@ def initialize(nopt):
     TH = 2.0
     
     return (np.random.uniform(S0L, S0H, nopt),
-    np.random.uniform(XL, XH, nopt),
-    np.random.uniform(TL, TH, nopt))
+            np.random.uniform(XL, XH, nopt),
+            np.random.uniform(TL, TH, nopt))
 
 def run_blackscholes(N, timing):
     client = Client(scheduler_file=getenv("DASK_CFG"))
