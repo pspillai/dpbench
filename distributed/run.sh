@@ -34,7 +34,7 @@ export NUM_NODES=${#tmp[@]}
 export OMP_NUM_THREADS=$(cpuinfo -g|grep Processors|cut -d ' ' -f 4)
 
 dists=${DISTS-"numpy torch heat dask"}
-benchs=${BENCHS-"pairwise_distance jstencil linreg nbody mandelbrot lbfgs"}
+benchs=${BENCHS-"blackscholes pairwise_distance jstencil linreg nbody mandelbrot lbfgs"}
 
 bargs="-b 5"
 for bench in $benchs; do
@@ -50,7 +50,9 @@ for bench in $benchs; do
     elif [[ "$bench" == "lbfgs" ]]; then
 	app="python lbfgs_run.py $bargs"
     elif [[ "$bench" == "pairwise_distance" ]]; then
-	app="python pairwise_distance_run.py -r 131072 -t $bargs"
+	app="python pairwise_distance_run.py -r 80000 -t $bargs"
+    elif [[ "$bench" == "blackscholes" ]]; then
+	app="python blackscholes_run.py -n 536870912 -t $bargs"
     fi
     # now we run this app for all the frameworks
     # the run-scripts start and tear-down dask/ray cluster each time to make sure
