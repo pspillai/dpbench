@@ -23,8 +23,12 @@ ray start --head --node-ip-address=$ip --port=$port --redis-password=$REDIS_PASS
 
 export RAY_HEAD=$ip_head
 
+RWPN=$(( $OMP_NUM_THREADS / 4 ))
+export RAMBA_NUM_THREADS=$(( $OMP_NUM_THREADS / $RWPN ))
+
 i=1
 for node in $head $nodes; do
+    export RAMBA_WORKERS=$(( $i * $RWPN ))
     if [[ "$head" != "$node" ]]; then
 	echo "STARTING WORKER at ${node}"
 	ssh ${node} ${raycmd} start --address $ip_head --redis-password=$REDIS_PASSWORD

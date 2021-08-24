@@ -30,9 +30,24 @@ from __future__ import print_function
 import argparse
 from benchmark import run_benchmark, add_common_args
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("\n\n!!!!!!!!!!!!!!!!!!!\nNote: use lbfgs/gen_Xy_data.py to generate input data\n!!!!!!!!!!!!!!!!!!!\n")
     add_common_args(parser)
+    parser.add_argument(
+        "-f",
+        "--features",
+        type=int,
+        default=10,
+        help="number of features for each input data point",
+    )
+    parser.add_argument(
+        "-n",
+        "--numrows",
+        type=int,
+        default=1000,
+        help="number of elements in the data set",
+    )
     args = parser.parse_args()
 
     if args.use == 'numpy':
@@ -54,5 +69,5 @@ if __name__ == "__main__":
         run_lbfgs,
         args,
         f"LBFGS,{args.use}",
-        (),
+        (args.numrows, args.features),
     )

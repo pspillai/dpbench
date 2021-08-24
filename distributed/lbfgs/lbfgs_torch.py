@@ -173,8 +173,8 @@ def logistic(app, X, y, max_iter, m):
     return forward(app, Xc, theta)
 
 
-def sample_set(app):
-    shape = (1000000, 1000)
+def sample_set(app, N, F):
+    shape = (N, F)
     #rs = np.random.RandomState(1337)
     np.random.manual_seed(1337)
     X1 = np.normal(5.0, 1.0, size=shape)
@@ -186,9 +186,9 @@ def sample_set(app):
     return X, y
 
 
-def run_lbfgs():
+def run_lbfgs(N, F):
     start = datetime.datetime.now()
-    X, y = sample_set(np)
+    X, y = sample_set(np, N, F)
     
     y_pred_proba = logistic(np, X, y, max_iter=10, m=3)
     print("scheduling submitted.")

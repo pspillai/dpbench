@@ -173,8 +173,8 @@ def logistic(app, X, y, max_iter, m, nt):
     return forward(app, Xc, theta).persist()
 
 
-def sample_set(app, nt):
-    shape = (1000000, 1000)
+def sample_set(app, N, F, nt):
+    shape = (N, F)
     rs = np.random.RandomState(1337)
     X1 = rs.normal(loc=5.0, size=shape, chunks=(shape[0]//nt, shape[1]))
     y1 = np.zeros(shape=(shape[0],), dtype=float, chunks=(shape[0]//nt,))
@@ -185,12 +185,12 @@ def sample_set(app, nt):
     return X, y
 
 
-def run_lbfgs():
+def run_lbfgs(N, F):
     client = Client(scheduler_file=getenv("DASK_CFG"))
     nt = numpy.sum([x for x in client.nthreads().values()])
     print(f"nt: {nt}")
     start = datetime.datetime.now()
-    X, y = sample_set(np, nt)
+    X, y = sample_set(np, N, F, nt)
     print("data loaded.")
     y_pred_proba = logistic(np, X, y, 10, 3, nt)
     print("scheduling submitted.")
