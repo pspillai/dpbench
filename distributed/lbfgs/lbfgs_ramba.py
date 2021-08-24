@@ -203,11 +203,9 @@ def sample_set(app, N, F):
 
 def run_lbfgs(N, F):
     app = np
-    if not ray.is_initialized():
-        ray.init(address=getenv("RAY_HEAD"), _redis_password=getenv("REDIS_PASSWORD"))
     start = datetime.datetime.now()
     X, y = sample_set(np, N, F)
-
+    #start = datetime.datetime.now()
     y_pred_proba = logistic(app, X, y, max_iter=10, m=3)
     print("scheduling submitted.")
     y_pred = (y_pred_proba > 0.5).astype(np.float32)
