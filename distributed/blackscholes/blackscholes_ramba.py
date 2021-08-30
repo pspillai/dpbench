@@ -15,7 +15,7 @@
 
 import datetime
 import ramba as np
-from scipy.special import erf
+import math
 
 def black_scholes( nopt, price, strike, t, rate, vol):
     mr = -rate
@@ -54,9 +54,9 @@ def initialize(nopt):
     TL = 1.0
     TH = 2.0
 
-    return ((S0L - S0H) * np.random.random(nopt) + S0H,
-            (XL - XH) * np.random.random(nopt) + XH,
-            (XL - TH) * np.random.random(nopt) + TH)
+    return (np.random.uniform(S0L, S0H, nopt),
+            np.random.uniform(XL, XH, nopt),
+            np.random.uniform(TL, TH, nopt))
 
 def run_blackscholes(N, timing):
     RISK_FREE = 0.1
