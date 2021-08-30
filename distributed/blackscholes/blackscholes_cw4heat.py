@@ -55,9 +55,9 @@ def initialize(nopt):
     TL = 1.0
     TH = 2.0
 
-    return (np.random.random(nopt, split=0),
-            np.random.random(nopt, split=0),
-            np.random.random(nopt,split=0))
+    return ((S0L - S0H) * np.random.random(nopt, split=0) + S0H,
+            (XL - XH) * np.random.random(nopt, split=0) + XH,
+            (XL - TH) * np.random.random(nopt, split=0) + TH)
 
 def run_blackscholes(N, timing):
     RISK_FREE = 0.1

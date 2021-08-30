@@ -14,10 +14,10 @@
 #
 
 import datetime
-from torch import erf
-import heat as np
+import ramba as np
+from scipy.special import erf
 
-def black_scholes(nopt, price, strike, t, rate, vol):
+def black_scholes( nopt, price, strike, t, rate, vol):
     mr = -rate
     sig_sig_two = vol * vol * 2
 
@@ -35,8 +35,8 @@ def black_scholes(nopt, price, strike, t, rate, vol):
     w1 = (a - b + c) * y
     w2 = (a - b - c) * y
 
-    d1 = 0.5 + 0.5 * np.core._operations.__local_op(erf, w1)
-    d2 = 0.5 + 0.5 * np.core._operations.__local_op(erf, w2)
+    d1 = 0.5 + 0.5 * w1.array_unaryop(None, "math.erf", imports=["math"])
+    d2 = 0.5 + 0.5 * w2.array_unaryop(None, "math.erf", imports=["math"])
 
     Se = np.exp(b) * S
 
@@ -54,9 +54,9 @@ def initialize(nopt):
     TL = 1.0
     TH = 2.0
 
-    return ((S0L - S0H) * np.random.random(nopt, split=0) + S0H,
-            (XL - XH) * np.random.random(nopt, split=0) + XH,
-            (XL - TH) * np.random.random(nopt, split=0) + TH)
+    return ((S0L - S0H) * np.random.random(nopt) + S0H,
+            (XL - XH) * np.random.random(nopt) + XH,
+            (XL - TH) * np.random.random(nopt) + TH)
 
 def run_blackscholes(N, timing):
     RISK_FREE = 0.1
@@ -64,7 +64,8 @@ def run_blackscholes(N, timing):
 
     start = datetime.datetime.now()
     price, strike, t = initialize(N)
-    put, call = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
+    call, put = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
+    np.sync()
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
     if timing:
