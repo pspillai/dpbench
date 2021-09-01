@@ -36,8 +36,8 @@ def black_scholes(nopt, price, strike, t, rate, vol):
     w1 = (a - b + c) * y
     w2 = (a - b - c) * y
 
-    d1 = 0.5 + 0.5 * np.core._operations.__local_op(erf, w1)
-    d2 = 0.5 + 0.5 * np.core._operations.__local_op(erf, w2)
+    d1 = 0.5 + 0.5 * np.__local_op(w1, erf)
+    d2 = 0.5 + 0.5 * np.__local_op(w2, erf)
 
     Se = np.exp(b) * S
 
@@ -65,7 +65,7 @@ def run_blackscholes(N, timing):
 
     start = datetime.datetime.now()
     price, strike, t = initialize(N)
-    put, call = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY, call, put)
+    put, call = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
     _ = call.shape
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
