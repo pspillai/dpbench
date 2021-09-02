@@ -17,8 +17,15 @@ import datetime
 from typing import List, Union
 
 import heat as np
-#import heat.cw4heat as np
-#np.init()
+import torch
+
+if not hasattr(np.random, "normal"):
+    def _normal(mean, std, size):
+        ret = np.empty(size)
+        torch.normal(mean, std, ret.lshape, out=ret.larray)
+        return ret
+    np.random.normal = _normal
+
 
 def forward(app, X, theta):
     #print("forward:", X.shape, theta.shape)
@@ -172,14 +179,12 @@ def logistic(app, X, y, max_iter, m):
     theta = lbfgs_optimizer.execute(Xc, y, theta)
     return forward(app, Xc, theta)
 
-
 def sample_set(app, N, F):
-    import numpy
     shape = (N, F)
-    numpy.random.seed(1337)
-    X1 = np.array(numpy.random.normal(5.0, 1.0, size=shape))
+    np.random.seed(1337)
+    X1 = np.random.normal(5.0, 1.0, size=shape)
     y1 = np.zeros((shape[0],), dtype=np.float)
-    X2 = np.array(numpy.random.normal(10.0, 1.0, size=shape))
+    X2 = np.random.normal(10.0, 1.0, size=shape)
     y2 = np.ones((shape[0],), dtype=np.float)
     X = np.concatenate([X1, X2], axis=0)
     y = np.concatenate([y1, y2], axis=0)

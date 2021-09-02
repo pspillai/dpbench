@@ -173,12 +173,11 @@ def logistic(app, X, y, max_iter, m):
 
 
 def sample_set(app, N, F):
-    import numpy
     shape = (N, F)
-    numpy.random.seed(1337)
-    X1 = np.array(numpy.random.normal(5.0, 1.0, size=shape))
+    np.random.seed(1337)
+    X1 = np.random.normal(5.0, 1.0, size=shape)
     y1 = np.zeros((shape[0],), dtype=np.float32)
-    X2 = np.array(numpy.random.normal(10.0, 1.0, size=shape))
+    X2 = np.random.normal(10.0, 1.0, size=shape)
     y2 = np.ones((shape[0],), dtype=np.float32)
     X = np.concatenate([X1, X2], axis=0)
     y = np.concatenate([y1, y2], axis=0)
