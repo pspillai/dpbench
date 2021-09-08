@@ -48,7 +48,7 @@ for bench in $benchs; do
     elif [[ "$bench" == "mandelbrot" ]]; then
 	app="python mandelbrot_run.py -d 1000,1000 -i 200 $bargs"
     elif [[ "$bench" == "lbfgs" ]]; then
-	app="python lbfgs_run.py $bargs"
+	app="python lbfgs_run.py -n 1000000 -f 1000 $bargs"
     elif [[ "$bench" == "pairwise_distance" ]]; then
 	app="python pairwise_distance_run.py -r 80000 -t $bargs"
     elif [[ "$bench" == "blackscholes" ]]; then
