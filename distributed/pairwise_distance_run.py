@@ -65,6 +65,8 @@ if __name__ == "__main__":
         from pairwise_distance.pairwise_distance_nums import run_pairwise_distance
     elif args.use == 'legate':
         from pairwise_distance.pairwise_distance_legate import run_pairwise_distance
+    elif args.use == 'jax':
+        from pairwise_distance.pairwise_distance_jax import run_pairwise_distance
 
     run_benchmark(
         run_pairwise_distance,
