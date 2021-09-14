@@ -11,8 +11,8 @@ head=$(hostname)
 nodes=$(echo $NODE_LIST | sed -e "s/ \+/\n/g" | grep -v $head)
 ip=$(hostname --ip-address) # making redis-address
 port=6377
-export ip_head=$ip:$port
-echo "IP Head: $ip_head"
+export RAY_HEAD=$ip:$port
+echo "IP Head: $RAY_HEAD"
 
 echo "STARTING HEAD at $head"
 raycmd=`which ray`
@@ -21,7 +21,9 @@ for node in $NODE_LIST; do
 done
 ray start --head --node-ip-address=$ip --port=$port --redis-password=$REDIS_PASSWORD
 
-export RAY_HEAD=$ip_head
+# export vars for ramba
+export ray_address=$RAY_HEAD
+export ray_redis_password=$REDIS_PASSWORD
 
 RWPN=4  #$(( $OMP_NUM_THREADS / 4 ))
 export RAMBA_NUM_THREADS=$(( $OMP_NUM_THREADS / $RWPN ))
@@ -31,7 +33,7 @@ for node in $head $nodes; do
     export RAMBA_WORKERS=$(( $i * $RWPN ))
     if [[ "$head" != "$node" ]]; then
 	echo "STARTING WORKER at ${node}"
-	ssh ${node} ${raycmd} start --address $ip_head --redis-password=$REDIS_PASSWORD
+	ssh ${node} ${raycmd} start --address $RAY_HEAD --redis-password=$REDIS_PASSWORD
     fi
     if (( i > 0 && (i & (i - 1)) == 0 )); then
 	sleep 8
