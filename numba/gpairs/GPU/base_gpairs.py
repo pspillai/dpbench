@@ -49,22 +49,22 @@ def gen_data_np(npoints, dtype = np.float32):
     result = np.zeros_like(DEFAULT_RBINS_SQUARED)[:-1].astype(dtype)
     return (x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result)
 
-def gen_data_usm(npoints):
+def gen_data_usm(npoints, dtype=np.float32, gpu_queue=dpctl.SyclQueue(dpctl.SyclDevice(get_device_selector()))):
     # init numpy obj
     x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result = gen_data_np(npoints)
 
-    with dpctl.device_context(get_device_selector()) as gpu_queue:
-        #init usmdevice memory
-        x1_usm = dpt.usm_ndarray(x1.shape, dtype=x1.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
-        y1_usm = dpt.usm_ndarray(y1.shape, dtype=y1.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
-        z1_usm = dpt.usm_ndarray(z1.shape, dtype=z1.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
-        w1_usm = dpt.usm_ndarray(w1.shape, dtype=w1.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
-        x2_usm = dpt.usm_ndarray(x2.shape, dtype=x2.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
-        y2_usm = dpt.usm_ndarray(y2.shape, dtype=y2.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
-        z2_usm = dpt.usm_ndarray(z2.shape, dtype=z2.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
-        w2_usm = dpt.usm_ndarray(w2.shape, dtype=w2.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
-        DEFAULT_RBINS_SQUARED_usm = dpt.usm_ndarray(DEFAULT_RBINS_SQUARED.shape, dtype=DEFAULT_RBINS_SQUARED.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
-        result_usm = dpt.usm_ndarray(result.shape, dtype=result.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    #init usmdevice memory
+    x1_usm = dpt.usm_ndarray(x1.shape, dtype=x1.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    y1_usm = dpt.usm_ndarray(y1.shape, dtype=y1.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    z1_usm = dpt.usm_ndarray(z1.shape, dtype=z1.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    w1_usm = dpt.usm_ndarray(w1.shape, dtype=w1.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    x2_usm = dpt.usm_ndarray(x2.shape, dtype=x2.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    y2_usm = dpt.usm_ndarray(y2.shape, dtype=y2.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    z2_usm = dpt.usm_ndarray(z2.shape, dtype=z2.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    w2_usm = dpt.usm_ndarray(w2.shape, dtype=w2.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    DEFAULT_RBINS_SQUARED_usm = dpt.usm_ndarray(DEFAULT_RBINS_SQUARED.shape, dtype=DEFAULT_RBINS_SQUARED.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+    result_usm = dpt.usm_ndarray(result.shape, dtype=result.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+
 
     x1_usm.usm_data.copy_from_host(x1.view("u1"))
     y1_usm.usm_data.copy_from_host(y1.view("u1"))
@@ -78,6 +78,12 @@ def gen_data_usm(npoints):
     result_usm.usm_data.copy_from_host(result.view("u1"))
 
     return (x1_usm,y1_usm,z1_usm,w1_usm,x2_usm,y2_usm,z2_usm,w2_usm, DEFAULT_RBINS_SQUARED_usm, result_usm)
+
+def create_data_copy(data, gpu_queue):
+    data_copy = dpt.usm_ndarray(data.shape, dtype=data.dtype, buffer="device", buffer_ctor_kwargs={"queue": gpu_queue})
+
+    data_copy.usm_data.copy_from_device(data)
+    return data_copy
 
 ##############################################
 
@@ -106,13 +112,25 @@ def run(name, alg, sizes=5, step=2, nopt=2**10):
     output['repeat']    = repeat
     output['metrics']   = []
 
+    device = dpctl.SyclDevice(get_device_selector())
+    queue_global = dpctl.SyclQueue(device)
+    sub_devs = device.create_sub_devices(partition="next_partitionable")
+    queue_tile_1 = dpctl.SyclQueue(sub_devs[0])
+    queue_tile_2 = dpctl.SyclQueue(sub_devs[1])
+
+
     if args.test:
         x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result_p = gen_data_np(nopt)
         gpairs_python(x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result_p)
 
         if args.usm is True: #test usm feature
-            x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result_usm = gen_data_usm(nopt)
-            alg(x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result_usm)
+            x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result_usm = gen_data_usm(nopt, gpu_queue=queue_global)
+
+            result_tile_1 = create_data_copy(result_usm, queue_tile_1)
+            result_tile_2 = create_data_copy(result_usm, queue_tile_2)
+
+            alg(x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result_usm, result_tile_1, result_tile_2, queue_global, queue_tile_1, queue_tile_2)
+
             result_n = np.empty(DEFAULT_NBINS-1, dtype=np.float32)
             result_usm.usm_data.copy_to_host(result_n.view("u1"))
         else:
@@ -132,15 +150,19 @@ def run(name, alg, sizes=5, step=2, nopt=2**10):
 
     for i in xrange(sizes):
         if args.usm is True:
-            x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result = gen_data_usm(nopt)
+            x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result = gen_data_usm(nopt, gpu_queue=queue_global)
         else:
             x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result = gen_data_np(nopt)
         iterations = xrange(repeat)
 
-        alg(x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result) #warmup
+        result_tile_1 = create_data_copy(result, queue_tile_1)
+        result_tile_2 = create_data_copy(result, queue_tile_2)
+
+        alg(x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result, result_tile_1, result_tile_2, queue_global, queue_tile_1, queue_tile_2)
+
         t0 = now()
         for _ in iterations:
-            alg(x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result)
+            alg(x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result, result_tile_1, result_tile_2, queue_global, queue_tile_1, queue_tile_2)
 
         mops,time = get_mops(t0, now(), nopt)
         f.write(str(nopt) + "," + str(mops*2*repeat) + "\n")

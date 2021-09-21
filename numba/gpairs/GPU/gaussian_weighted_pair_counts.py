@@ -263,12 +263,57 @@ def count_weighted_pairs_3d_cuda_fix(
 
 @numba_dppy.kernel
 def count_weighted_pairs_3d_intel(
-        x1, y1, z1, w1, x2, y2, z2, w2, rbins_squared, result):
+        begin, x1, y1, z1, w1, x2, y2, z2, w2, rbins_squared, result):
     """Naively count Npairs(<r), the total number of pairs that are separated
     by a distance less than r, for each r**2 in the input rbins_squared.
     """
 
-    start = numba_dppy.get_global_id(0)
+    start = begin + numba_dppy.get_global_id(0)
+    stride = numba_dppy.get_global_size(0) * 2
+
+    n1 = x1.shape[0]
+    n2 = x2.shape[0]
+    nbins = rbins_squared.shape[0]
+
+    for i in range(start, n1, stride):
+        px = x1[i]
+        py = y1[i]
+        pz = z1[i]
+        pw = w1[i]
+        for j in range(n2):
+            qx = x2[j]
+            qy = y2[j]
+            qz = z2[j]
+            qw = w2[j]
+            dx = px-qx
+            dy = py-qy
+            dz = pz-qz
+            wprod = pw*qw
+            dsq = dx*dx + dy*dy + dz*dz
+
+            k = nbins-1
+            while dsq <= rbins_squared[k]:
+                numba_dppy.atomic.add(result, k-1, wprod)
+                k = k-1
+                if k <= 0:
+                    break
+
+@numba_dppy.kernel
+def merge_results(result_tile_1, result_tile_2, result_global):
+    idx = numba_dppy.get_global_id(0)
+
+    if idx < result_global.shape[0]:
+        result_global[idx] = result_tile_1[idx] + result_tile_2[idx]
+
+'''
+@numba_dppy.kernel
+def count_weighted_pairs_3d_intel(
+        begin, x1, y1, z1, w1, x2, y2, z2, w2, rbins_squared, result):
+    """Naively count Npairs(<r), the total number of pairs that are separated
+    by a distance less than r, for each r**2 in the input rbins_squared.
+    """
+
+    start = begin + numba_dppy.get_global_id(0)
     stride = numba_dppy.get_global_size(0)
 
     n1 = x1.shape[0]
@@ -297,6 +342,9 @@ def count_weighted_pairs_3d_intel(
                 k = k-1
                 if k <= 0:
                     break
+'''
+
+
 
 @numba_dppy.kernel
 def count_weighted_pairs_3d_intel_ver2(
