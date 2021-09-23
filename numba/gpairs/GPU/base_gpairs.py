@@ -47,6 +47,14 @@ def get_device_selector (is_gpu = True):
 def gen_data_np(npoints, dtype = np.float32):
     x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED = gen_rand_data(npoints, dtype)
     result = np.zeros_like(DEFAULT_RBINS_SQUARED)[:-1].astype(dtype)
+
+    size = (x1.size * x1.itemsize) + (y1.size * y1.itemsize) + (z1.size * z1.itemsize) + \
+        (w1.size * w1.itemsize) + (x2.size * x2.itemsize) + (y2.size * y2.itemsize) + \
+        (z2.size * z2.itemsize) + (w2.size * w2.itemsize) + (DEFAULT_RBINS_SQUARED.size + DEFAULT_RBINS_SQUARED.itemsize) + \
+        (result.size * result.itemsize)
+
+    print("npoints", ":", (size//(1024*1024)), "MB")
+
     return (x1, y1, z1, w1, x2, y2, z2, w2, DEFAULT_RBINS_SQUARED, result)
 
 def gen_data_usm(npoints, dtype=np.float32, gpu_queue=dpctl.SyclQueue(dpctl.SyclDevice(get_device_selector()))):
