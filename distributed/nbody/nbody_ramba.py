@@ -2,7 +2,7 @@
 # TODO: Add GPL-3.0 License
 
 import datetime
-import numpy as np
+import ramba as np
 """
 Create Your Own N-body Simulation (With Python)
 Philip Mocz (2020) Princeton Univeristy, @PMocz
@@ -10,6 +10,7 @@ Simulate orbits of stars interacting due to gravity
 Code calculates pairwise forces according to Newton's Law of Gravity
 """
 
+from timeit import default_timer as timer
 
 def getAcc(pos, mass, G, softening):
     """
@@ -24,9 +25,14 @@ def getAcc(pos, mass, G, softening):
     x = pos[:, 0:1]
     y = pos[:, 1:2]
     z = pos[:, 2:3]
+    print("getacc:", x.shape, y.shape, z.shape, x.T.shape, x.T.distribution, y.T.shape, y.T.distribution, z.T.shape, z.T.distribution)
+    XTb = np.ndarray.broadcast(x.T, x)
+    print("XTb:", XTb[0], XTb[1].shape, XTb[1].distribution, XTb[2].shape, XTb[2].distribution)
 
     # matrix that stores all pairwise particle separations: r_j - r_i
     dx = x.T - x
+    np.sync()
+    print("after getacc sync")
     dy = y.T - y
     dz = z.T - z
 
@@ -96,6 +102,10 @@ def nbody(mass, pos, vel, N, Nt, dt, G, softening):
 
     t = 0.0
 
+    total_start = timer()
+    gatime = 0
+    getime = 0
+
     # Simulation Main Loop
     for i in range(Nt):
         # (1/2) kick
@@ -105,7 +115,9 @@ def nbody(mass, pos, vel, N, Nt, dt, G, softening):
         pos += vel * dt
 
         # update accelerations
+        gastart = timer()
         acc = getAcc(pos, mass, G, softening)
+        gatime += timer() - gastart
 
         # (1/2) kick
         vel += acc * dt / 2.0
@@ -114,8 +126,14 @@ def nbody(mass, pos, vel, N, Nt, dt, G, softening):
         t += dt
 
         # get energy of system
+        gestart = timer()
         KE[i + 1], PE[i + 1] = getEnergy(pos, vel, mass, G)
+        getime += timer() - gestart
 
+    total_end = timer()
+    print("total time:", total_end - total_start)
+    print("getacc time:", gatime)
+    print("getenergy time:", getime)
     return KE, PE
 
 
