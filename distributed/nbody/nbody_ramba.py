@@ -2,7 +2,7 @@
 # TODO: Add GPL-3.0 License
 
 import datetime
-import numpy as np
+import ramba as np
 """
 Create Your Own N-body Simulation (With Python)
 Philip Mocz (2020) Princeton Univeristy, @PMocz
