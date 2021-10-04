@@ -14,8 +14,23 @@
 #
 
 import datetime
-import ramba as np
+import arkouda as np
+from scipy.special import erf
 import math
+
+def ak_erf(pda):
+    signs = np.ones_like(pda)
+    signs[pda < 0] = -1
+    abs_pda = pda * signs
+    a1 =  0.254829592
+    a2 = -0.284496736
+    a3 =  1.421413741
+    a4 = -1.453152027
+    a5 =  1.061405429
+    p  =  0.3275911
+    t = 1.0/(1.0 + p*abs_pda)
+    y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*2.718281**(-abs_pda**2)
+    return signs*y
 
 def black_scholes( nopt, price, strike, t, rate, vol):
     mr = -rate
@@ -30,13 +45,14 @@ def black_scholes( nopt, price, strike, t, rate, vol):
 
     z = T * sig_sig_two
     c = 0.25 * z
-    y = 1./np.sqrt(z)
+    y = 1./(z ** 0.5)
+    #y = 1./np.sqrt(z)
 
     w1 = (a - b + c) * y
     w2 = (a - b - c) * y
 
-    d1 = 0.5 + 0.5 * w1.array_unaryop(None, "math.erf", imports=["math"])
-    d2 = 0.5 + 0.5 * w2.array_unaryop(None, "math.erf", imports=["math"])
+    d1 = 0.5 + 0.5 * ak_erf(w1)
+    d2 = 0.5 + 0.5 * ak_erf(w2)
 
     Se = np.exp(b) * S
 
@@ -46,7 +62,7 @@ def black_scholes( nopt, price, strike, t, rate, vol):
     return (put, call)
 
 def initialize(nopt):
-    np.random.seed(7777777)
+    #np.random.seed(7777777)
     S0L = 10.0
     S0H = 50.0
     XL = 10.0
@@ -54,23 +70,21 @@ def initialize(nopt):
     TL = 1.0
     TH = 2.0
 
-    return (np.random.uniform(S0L, S0H, nopt),
-            np.random.uniform(XL, XH, nopt),
-            np.random.uniform(TL, TH, nopt))
+    return (np.uniform(nopt, S0L, S0H),
+            np.uniform(nopt, XL, XH),
+            np.uniform(nopt, TL, TH))
 
 def run_blackscholes(N, timing):
+    np.connect(server="localhost", port=5555)
     RISK_FREE = 0.1
     VOLATILITY = 0.2
 
-    price, strike, t = initialize(N)
-    call, put = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
-    np.sync()
     start = datetime.datetime.now()
     price, strike, t = initialize(N)
     call, put = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
-    np.sync()
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
     if timing:
         print(f"Elapsed Time: {total} ms")
+    np.disconnect()
     return total

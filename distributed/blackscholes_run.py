@@ -57,6 +57,8 @@ if __name__ == "__main__":
         from blackscholes.blackscholes_nums import run_blackscholes
     elif args.use == 'legate':
         from blackscholes.blackscholes_legate import run_blackscholes
+    elif args.use == 'arkouda':
+        from blackscholes.blackscholes_arkouda import run_blackscholes
 
     run_benchmark(
         run_blackscholes,
