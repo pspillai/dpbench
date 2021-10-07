@@ -46,9 +46,9 @@ def linear_regression(
     weights = np.zeros(features.shape[1], dtype=T)
 
     for step in range(steps):
-        scores = np.dot(features, weights)
+        scores = np.matmul(features, weights)
         error = scores - target
-        gradient = -(1.0 / len(features)) * error.dot(features)
+        gradient = -(1.0 / len(features)) * np.matmul(error, features)
         weights += learning_rate * gradient
         if step % sample == 0:
             weights = weights.persist()
@@ -74,8 +74,8 @@ def run_linear_regression(N, F, T, I, S, B):  # noqa: E741
         T = numpy.float16
     elif T == 32:
         T = numpy.float32
-        if T == 64:
-            T = numpy.float64
+    elif T == 64:
+        T = numpy.float64
     start = datetime.datetime.now()
     features, target = initialize(N * 1000, F, T, nt)
     weights = linear_regression(T, features, target, I, 1e-5, S, nt, B).compute()

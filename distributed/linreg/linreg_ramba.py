@@ -68,7 +68,7 @@ def run_linear_regression(N, F, T, I, S, B):  # noqa: E741
         T = np.float16
     elif T == 32:
         T = np.float32
-    if T == 64:
+    elif T == 64:
         T = np.float64
     start = datetime.datetime.now()
     features, target = initialize(N * 1000, F, T)
