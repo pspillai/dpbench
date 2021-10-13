@@ -17,7 +17,7 @@ import datetime
 import ramba as np
 import math
 
-def black_scholes( nopt, price, strike, t, rate, vol):
+def black_scholes(price, strike, t, rate, vol):
     mr = -rate
     sig_sig_two = vol * vol * 2
 
@@ -67,7 +67,7 @@ def run_blackscholes(N, timing):
     np.sync()
     start = datetime.datetime.now()
     price, strike, t = initialize(N)
-    call, put = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
+    call, put = black_scholes(price, strike, t, RISK_FREE, VOLATILITY)
     np.sync()
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
