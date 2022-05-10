@@ -24,10 +24,31 @@ int main(int argc, char **argv) {
   int     Num_procs,     /* number of ranks                             */
           my_ID,         /* rank of calling rank                        */
           root=0;        /* ID of master rank                           */
+  int     i, iters=1;    /* number of times to do calculations */
 
   MPI_Init(&argc,&argv);
   MPI_Comm_size(MPI_COMM_WORLD,&Num_procs);
   MPI_Comm_rank(MPI_COMM_WORLD,&my_ID);
+
+  if (argc < 2 || argc > 3){
+    if (my_ID == root) 
+      printf("Usage: %s <total length> <iterations>\n", *argv);
+    exit(1);
+  }
+  total_length  = atol(*++argv);
+  if (total_length < 1){
+    if (my_ID == root) 
+      printf("ERROR: total length must be > 0 : %d \n",total_length);
+    exit(1);
+  }
+  if (argc>2){
+    iters = atoi(*++argv);
+    if (iters<1) {
+      if (my_ID==root)
+        printf("ERROR: iterations must be > 0: %d\n", iters);
+      exit(1);
+    }
+  }
 
   if (my_ID == root) {
     length = total_length/Num_procs;
@@ -49,8 +70,8 @@ int main(int argc, char **argv) {
   unsigned int myseed = omp_get_thread_num();
   #pragma omp for
   for (j=0; j<length; j++) {
-    price[j] = uniform(10.0, 15.0, &myseed);
-    strike[j] = uniform(10.0, 15.0, &myseed);
+    price[j] = uniform(10.0, 50.0, &myseed);
+    strike[j] = uniform(10.0, 50.0, &myseed);
     t[j] = uniform(1.0, 2.0, &myseed);
   }
   }
@@ -65,8 +86,9 @@ int main(int argc, char **argv) {
   double mr = -rate;
   double sig_sig_two = vol * vol * 2;
 
-  #pragma omp parallel for
-  for (j=0; j<length; j++) {
+  for (i=0; i<iters; i++) {
+    #pragma omp parallel for
+    for (j=0; j<length; j++) {
       double P = price[j];
       double S = strike[j];
       double T = t[j];
@@ -82,6 +104,7 @@ int main(int argc, char **argv) {
       double Se = exp(b) * S;
       call[j] = P * d1 - Se * d2;
       put[j] = call[j] - P + Se;
+    }
   }
 
   local_nstream_time = omp_get_wtime() - local_nstream_time;
