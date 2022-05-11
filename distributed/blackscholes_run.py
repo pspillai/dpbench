@@ -32,6 +32,14 @@ if __name__ == "__main__":
         help="number of options",
     )
     parser.add_argument(
+        "-i",
+        "--iters",
+        type=int,
+        dest='iters',
+        default=1,
+        help="number of iterations (repeat)",
+    )
+    parser.add_argument(
         "-t",
         "--time",
         dest="timing",
@@ -64,5 +72,5 @@ if __name__ == "__main__":
         run_blackscholes,
         args,
         f"BLACKSCHOLES,{args.use}",
-        (args.N, args.timing)
+        (args.N, args.iters, args.timing)
     )

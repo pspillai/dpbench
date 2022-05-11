@@ -54,21 +54,26 @@ def initialize(nopt):
     TL = 1.0
     TH = 2.0
 
-    return (np.random.uniform(S0L, S0H, nopt),
-            np.random.uniform(XL, XH, nopt),
-            np.random.uniform(TL, TH, nopt))
+    return (np.random.uniform(S0L, S0H, nopt, dtype=np.float64),
+            np.random.uniform(XL, XH, nopt, dtype=np.float64),
+            np.random.uniform(TL, TH, nopt, dtype=np.float64))
 
-def run_blackscholes(N, timing):
+def run_blackscholes(N, iters, timing):
     RISK_FREE = 0.1
     VOLATILITY = 0.2
 
-    price, strike, t = initialize(N)
-    call, put = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
     np.sync()
-    start = datetime.datetime.now()
     price, strike, t = initialize(N)
+    np.sync()
+    print("finished init")
     call, put = black_scholes(price, strike, t, RISK_FREE, VOLATILITY)
     np.sync()
+    print("finished warmup")
+    print(call.dtype, call.shape)
+    start = datetime.datetime.now()
+    for _ in range(iters):
+        call, put = black_scholes(price, strike, t, RISK_FREE, VOLATILITY)
+        np.sync()
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
     if timing:

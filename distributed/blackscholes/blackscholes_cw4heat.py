@@ -59,13 +59,15 @@ def initialize(nopt):
             (XL - XH) * np.random.random(nopt, split=0) + XH,
             (XL - TH) * np.random.random(nopt, split=0) + TH)
 
-def run_blackscholes(N, timing):
+def run_blackscholes(N, iters, timing):
     RISK_FREE = 0.1
     VOLATILITY = 0.2
 
-    start = datetime.datetime.now()
     price, strike, t = initialize(N)
     put, call = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY, call, put)
+    start = datetime.datetime.now()
+    for _ in range(iters):
+        put, call = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY, call, put)
     _ = call.shape
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
