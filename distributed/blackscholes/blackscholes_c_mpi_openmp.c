@@ -3,6 +3,7 @@
 #include "mpi.h"
 #include <stdlib.h>
 #include <math.h>
+#include <mathimf.h>
 
 static double * restrict price;
 static double * restrict strike;
@@ -87,7 +88,8 @@ int main(int argc, char **argv) {
   double sig_sig_two = vol * vol * 2;
 
   for (i=0; i<iters; i++) {
-    #pragma omp parallel for
+    #pragma omp parallel for simd shared(price, strike, t, put, call)
+    #pragma vector
     for (j=0; j<length; j++) {
       double P = price[j];
       double S = strike[j];
@@ -99,8 +101,10 @@ int main(int argc, char **argv) {
       double y = 1.0 / sqrt(z);
       double w1 = (a - b + c) * y;
       double w2 = (a - b - c) * y;
-      double d1 = 0.5 + 0.5 * erf(w1);
-      double d2 = 0.5 + 0.5 * erf(w2);
+      //double d1 = 0.5 + 0.5 * erf(w1);
+      //double d2 = 0.5 + 0.5 * erf(w2);
+      double d1 = 0.5 + 0.5 * erff(w1);
+      double d2 = 0.5 + 0.5 * erff(w2);
       double Se = exp(b) * S;
       call[j] = P * d1 - Se * d2;
       put[j] = call[j] - P + Se;
