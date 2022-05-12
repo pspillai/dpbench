@@ -16,6 +16,11 @@
 import datetime
 from torch import erf
 import heat as np
+from mpi4py import MPI
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+nprocs = comm.Get_size()
 
 def black_scholes(nopt, price, strike, t, rate, vol):
     mr = -rate
@@ -63,15 +68,17 @@ def run_blackscholes(N, iters, timing):
     VOLATILITY = 0.2
 
     price, strike, t = initialize(N)
-    print("finished init")
+    if rank==nprocs-1: print("finished init")
     put, call = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
-    print("finished warmup")
-    print(call.dtype, call.shape)
+    if rank==nprocs-1: print("finished warmup")
+    #if rank==nprocs-1: print(call.dtype, call.shape)
+    comm.Barrier()
     start = datetime.datetime.now()
     for it in range(iters):
         put, call = black_scholes(N, price+it/100, strike+it/100, t+it/100, RISK_FREE+it/100, VOLATILITY+it/100)
+    comm.Barrier()
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
-    if timing:
+    if timing and rank==nprocs-1:
         print(f"Elapsed Time: {total} ms")
     return total
