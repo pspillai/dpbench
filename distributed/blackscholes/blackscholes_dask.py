@@ -15,7 +15,7 @@
 
 import datetime
 import dask.array as np
-from dask.distributed import Client
+from dask.distributed import Client,wait
 from os import getenv
 import numpy
 from scipy.special import erf
@@ -33,7 +33,8 @@ def black_scholes(nopt, price, strike, t, rate, vol):
 
     z = T * sig_sig_two
     c = 0.25 * z
-    y = np.map_blocks( lambda x: np.true_divide(1.0, np.sqrt(x)) , z)
+    #y = np.map_blocks( lambda x: np.true_divide(1.0, np.sqrt(x)) , z)
+    y = 1.0 / np.sqrt(z)
 
     w1 = (a - b + c) * y
     w2 = (a - b - c) * y
@@ -46,9 +47,13 @@ def black_scholes(nopt, price, strike, t, rate, vol):
     call = P * d1 - Se * d2
     put = call - P + Se
 
-    return (put.persist(), call.persist())
+    put = put.persist()
+    call = call.persist()
+    call[::100000].compute()
+    put[::100000].compute()
+    return (put, call)
 
-def initialize(nopt):
+def initialize(nopt,nt):
     np.random.seed(7777777)
     S0L = 10.0
     S0H = 50.0
@@ -57,21 +62,29 @@ def initialize(nopt):
     TL = 1.0
     TH = 2.0
 
-    return (np.random.uniform(S0L, S0H, nopt),
-            np.random.uniform(XL, XH, nopt),
-            np.random.uniform(TL, TH, nopt))
+    #return (np.random.uniform(S0L, S0H, nopt, chunks=nopt//nt).persist(),
+    #        np.random.uniform(XL, XH, nopt, chunks=nopt//nt).persist(),
+    #        np.random.uniform(TL, TH, nopt, chunks=nopt//nt).persist())
+    return (np.random.uniform(S0L, S0H, nopt).persist(),
+            np.random.uniform(XL, XH, nopt).persist(),
+            np.random.uniform(TL, TH, nopt).persist())
 
 def run_blackscholes(N, iters, timing):
-    client = Client(scheduler_file=getenv("DASK_CFG"))
+    #client = Client(scheduler_file=getenv("DASK_CFG"))
+    client = Client(getenv("DASK_MASTER")+":8786")
+    #client = Client()
     nt = numpy.sum([x for x in client.nthreads().values()])
+    print ("Total threads", nt)
     RISK_FREE = 0.1
     VOLATILITY = 0.2
 
-    price, strike, t = initialize(N)
-    black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
+    price, strike, t = initialize(N, nt)
+    puts, calls = black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
+    print ("finished init, warmup", strike.dtype, puts.dtype)
     start = datetime.datetime.now()
-    for _ in range(iters):
-        black_scholes(N, price, strike, t, RISK_FREE, VOLATILITY)
+    for it in range(iters):
+        #price, strike, t = initialize(N+iters, nt)
+        puts, calls = black_scholes(N, price+it/100, strike+it/100, t+it/100, RISK_FREE+it/100, VOLATILITY+it/100)
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
     if timing:

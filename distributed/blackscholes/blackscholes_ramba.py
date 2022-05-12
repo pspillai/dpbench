@@ -71,8 +71,8 @@ def run_blackscholes(N, iters, timing):
     print("finished warmup")
     print(call.dtype, call.shape)
     start = datetime.datetime.now()
-    for _ in range(iters):
-        call, put = black_scholes(price, strike, t, RISK_FREE, VOLATILITY)
+    for it in range(iters):
+        call, put = black_scholes(price+it/100, strike+it/100, t+it/100, RISK_FREE+it/100, VOLATILITY+it/100)
         np.sync()
     delta = datetime.datetime.now() - start
     total = delta.total_seconds() * 1000.0
