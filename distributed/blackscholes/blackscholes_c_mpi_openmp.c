@@ -108,6 +108,9 @@ int main(int argc, char **argv) {
       double Se = exp(b) * S;
       call[j] = P * d1 - Se * d2;
       put[j] = call[j] - P + Se;
+      price[j]+=.01;
+      strike[j]+=.01;
+      t[j]+=.01;
     }
   }
 
